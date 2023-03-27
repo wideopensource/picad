@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "picad"
-version = "0.1.5"
+version = "0.1.7"
 description = "Python package for reading and writing KiCad 6+ S-expression files, no dependency on KiCad"
 authors = ["wideopentech <fossie@wideoppentech.co.uk>"]
 license = "MIT"
