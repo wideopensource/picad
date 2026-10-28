@@ -11,7 +11,8 @@ class SExprEmpty(SExprBase):
 class SExpr(SExprBase):
     def __init__(self, data, required_tag=None,
                  required_atoms=None, optional_atoms=None,
-                 required_lists=None, optional_lists=None):
+                 required_lists=None, optional_lists=None,
+                 allow_undeclared_elements=False):
 
         self._messages = []
 
@@ -20,6 +21,8 @@ class SExpr(SExprBase):
         self._optional_atoms = optional_atoms
         self._required_lists = required_lists
         self._optional_lists = optional_lists
+        # allow_undeclared_elements: check only the atoms and lists named, ignore any others (they stay in the data)
+        self._allow_undeclared_elements = allow_undeclared_elements
 
         if self._required_atoms is not None:
             if not isinstance(self._required_atoms, tuple):
@@ -179,7 +182,7 @@ class SExpr(SExprBase):
             first_index = 0 if self._required_atoms is None else len(
                 self._required_atoms)
 
-            if len(self._atoms) > first_index + len(self._optional_atoms):
+            if not self._allow_undeclared_elements and len(self._atoms) > first_index + len(self._optional_atoms):
                 return self._error('too many atoms')
 
             for i, optional_type in enumerate(self._optional_atoms):
@@ -198,7 +201,7 @@ class SExpr(SExprBase):
                                 f"atom index {i} should be string (found '{atom}')")
                             return False
 
-        if len(self._atoms) > max_number_of_atoms:
+        if not self._allow_undeclared_elements and len(self._atoms) > max_number_of_atoms:
             self._error("too many atoms")
             return False
 
@@ -212,6 +215,8 @@ class SExpr(SExprBase):
 
         for tag in list_tags:
             if not self._is_allowed_list_tag(tag):
+                if self._allow_undeclared_elements:
+                    continue
                 self._error(f"invalid list tag '{tag}'")
                 return False
 
